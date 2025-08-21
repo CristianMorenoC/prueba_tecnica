@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 from typing import Optional
 from enum import Enum
+from pydantic import BaseModel
 
 
 class NotifyChannel(str, Enum):
@@ -8,12 +8,10 @@ class NotifyChannel(str, Enum):
     SMS = "sms"
 
 
-@dataclass
-class User:
+class User(BaseModel):
     user_id: str
     name: str
     email: str
     phone: Optional[str]
     balance: float
     notify_channel: NotifyChannel
-    version: int = 0

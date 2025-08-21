@@ -1,18 +1,18 @@
-from dataclasses import dataclass
 from typing import Optional
-from datetime import datetime
 from enum import Enum
+from pydantic import BaseModel
+from datetime import datetime
+
 
 class Status(str, Enum):
     ACTIVE = "active"
     CANCELLED = "cancelled"
 
-@dataclass
-class Subscription:
+
+class Subscription(BaseModel):
     user_id: str
     fund_id: str
     amount: float
     status: Status
-    created_at: str
+    created_at: Optional[str] = datetime.now().isoformat()
     cancelled_at: Optional[str] = None
-    version: int = 0  # For optimistic locking

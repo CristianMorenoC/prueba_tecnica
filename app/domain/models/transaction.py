@@ -1,14 +1,13 @@
-from dataclasses import dataclass
-from typing import Optional
 from enum import Enum
+from pydantic import BaseModel
+
 
 class TransactionType(str, Enum):
     OPEN = "open"
     CANCEL = "cancel"
 
-@dataclass
-class Transaction:
-    tx_id: str
+
+class Transaction(BaseModel):
     user_id: str
     fund_id: str
     amount: float
@@ -16,4 +15,3 @@ class Transaction:
     timestamp: str
     prev_balance: float
     new_balance: float
-    version: int = 0  # For optimistic locking

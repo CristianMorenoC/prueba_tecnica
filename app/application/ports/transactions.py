@@ -3,10 +3,9 @@ from datetime import datetime
 from app.domain.models.transaction import Transaction
 
 
-class TransactionRepo(Protocol):
-    def list_by_user(
+class TransactionPort(Protocol):
+    def get_all(
             self,
-            user_id: str,
             limit: int = 50,
             since: datetime | None = None
             ) -> Iterable[Transaction]:

@@ -1,10 +1,8 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class Fund:
+class Fund(BaseModel):
     fund_id: str
     name: str
     min_amount: float
     category: str
-    version: int = 0

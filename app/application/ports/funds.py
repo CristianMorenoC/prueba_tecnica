@@ -1,5 +1,5 @@
 from app.domain.models.fund import Fund
-from typing import Protocol
+from typing import Protocol, Tuple
 
 
 class FundPort(Protocol):
@@ -10,5 +10,5 @@ class FundPort(Protocol):
                 self,
                 limit: int = 50,
                 last_key: str | None = None
-                ) -> list[Fund]:
+                ) -> Tuple[list[Fund], str | None]:
         """List all funds."""
