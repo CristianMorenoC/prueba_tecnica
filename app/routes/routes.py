@@ -2,6 +2,7 @@ from fastapi import Depends
 from app.main import app
 from app.use_cases.subscriptions import SubscriptionUseCase
 from app.use_cases.transactions import TransactionUseCase
+from app.domain.models.requests import SubscribeRequest
 from app.infrastructure.dependencies import (
     get_subscription_use_case,
     get_transaction_use_case
@@ -11,15 +12,15 @@ from app.infrastructure.dependencies import (
 @app.post("/subscribe/{fund_id}")
 async def subscribe(
     fund_id: str,
+    request: SubscribeRequest,
     user_id: str = "user123",  # TODO: Get from authentication
-    amount: float = 100.0,     # TODO: Get from request body
     use_case: SubscriptionUseCase = Depends(get_subscription_use_case)
 ):
     """Subscribe a user to a fund."""
     return use_case.subscribe(
         fund_id=fund_id,
         user_id=user_id,
-        amount=amount
+        amount=request.amount
     )
 
 

@@ -1,0 +1,30 @@
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# AWS credentials
+.aws/
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.coverage
+htmlcov/
+
+# Logs
+logs
+*.log
+
+# Dependencies
+node_modules/

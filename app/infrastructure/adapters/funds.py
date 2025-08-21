@@ -1,68 +1,76 @@
+import boto3
+import os
+from botocore.exceptions import ClientError
 from app.domain.models.fund import Fund
-from typing import List, Optional, Tuple
 from app.application.ports.funds import FundPort
+from typing import List, Tuple, Dict, Any
 
 
 class FundAdapter(FundPort):
+    def __init__(self, dynamodb_resource=None):
+        if dynamodb_resource is None:
+            self.dynamodb = boto3.resource(
+                'dynamodb',
+                aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+                aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+                region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
+            )
+        else:
+            self.dynamodb = dynamodb_resource
 
-    def __init__(self, seed: Optional[List[Fund]] = None):
-        self._funds: List[Fund] = seed or [
-            Fund(
-                fund_id="1",
-                name="FPV BTG Pactual Recaudadora",
-                min_amount=75000,
-                category="FPV"
-                ),
-            Fund(
-                fund_id="2",
-                name="FPV Renta Fija Conservadora",
-                min_amount=50000,
-                category="FPV"
-                ),
-            Fund(
-                fund_id="3",
-                name="ETF S&P 500 USD",
-                min_amount=100000,
-                category="ETF"
-                ),
-            Fund(
-                fund_id="4",
-                name="ETF Nasdaq 100 USD",
-                min_amount=100000,
-                category="ETF"
-                ),
-            Fund(
-                fund_id="5",
-                name="FPV Liquidez Diaria",
-                min_amount=20000,
-                category="FPV"
-                ),
-        ]
-        self._funds.sort(key=lambda x: x.fund_id)
+        self.funds_table = self.dynamodb.Table('Funds')
 
     def get_by_id(self, fund_id: str) -> Fund:
         """Get a fund by its ID."""
-        for fund in self._funds:
-            if fund.fund_id == fund_id:
-                return fund
-        raise ValueError("Fund not found")
+        try:
+            response = self.funds_table.get_item(Key={'fund_id': fund_id})
+
+            if 'Item' not in response:
+                raise ValueError(f"Fund with ID {fund_id} not found")
+
+            item = response['Item']
+            return Fund(
+                fund_id=item['fund_id'],
+                name=item['name'],
+                min_amount=float(item['min_amount']),
+                category=item['category']
+            )
+        except ClientError as e:
+            raise Exception(
+                f"Error retrieving fund: {e.response['Error']['Message']}"
+            )
 
     def list_all(
-            self,
-            limit=50,
-            last_key: Optional[str] = None
-            ) -> Tuple[List[Fund], Optional[str]]:
-        """Get all funds by pagination."""
-        start_idx = 0
-        if last_key:
-            for idx, fund in enumerate(self._funds):
-                if fund.fund_id == last_key:
-                    start_idx = idx + 1
-                    break
-        page = self._funds[start_idx:start_idx + limit]
-        next_page = (
-            page[-1].fund_id
-            if (start_idx + limit) < len(self._funds) and page
-            else None
-        )
-        return (page, next_page)
+        self,
+        limit: int = 50,
+        last_key: str | None = None
+    ) -> Tuple[List[Fund], str | None]:
+        """List all funds."""
+        try:
+            scan_kwargs: Dict[str, Any] = {'Limit': limit}
+
+            if last_key:
+                scan_kwargs['ExclusiveStartKey'] = {'fund_id': last_key}
+
+            response = self.funds_table.scan(**scan_kwargs)
+
+            funds = []
+            for item in response.get('Items', []):
+                fund = Fund(
+                    fund_id=item['fund_id'],
+                    name=item['name'],
+                    min_amount=float(item['min_amount']),
+                    category=item['category']
+                )
+                funds.append(fund)
+
+            next_key = None
+            if 'LastEvaluatedKey' in response:
+                next_key = response['LastEvaluatedKey']['fund_id']
+
+            return (funds, next_key)
+
+        except ClientError as e:
+            raise Exception(
+                f"Error listing funds: {e.response['Error']['Message']}"
+            )
