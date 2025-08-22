@@ -2,6 +2,8 @@
 
 ## 1. Arquitectura de Seguridad General
 
+![diagrama de arquitectura](image.png)
+
 ### Componentes AWS
 La arquitectura de seguridad se basa en los siguientes servicios de AWS:
 - **Amazon Cognito**: Gestión de identidades y autenticación
