@@ -9,16 +9,15 @@ from typing import Any
 class UserAdapter(UserPort):
     def __init__(self, dynamodb_resource=None):
         if dynamodb_resource is None:
+            # En Lambda, usar IAM Role automático
             self.dynamodb = boto3.resource(
                 'dynamodb',
-                aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-                aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
                 region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
             )
         else:
             self.dynamodb = dynamodb_resource
 
-        self.users_table = self.dynamodb.Table('AppChallenge')
+        self.users_table = self.dynamodb.Table(os.getenv('APPCHALLENGE_TABLE_NAME', 'AppChallenge'))
 
     def get_by_id(self, user_id: str) -> User:
         """Get a user by their ID."""
