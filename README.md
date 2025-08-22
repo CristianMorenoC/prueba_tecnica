@@ -68,7 +68,7 @@ AWS_DEFAULT_REGION=us-east-1
 
 ```bash
 # Servidor de desarrollo con auto-reload
-fastapi dev app/main.py --port 8000
+fastapi dev app/run.py --port 8000
 
 # El servidor estará disponible en: http://localhost:8000
 # Documentación automática en: http://localhost:8000/docs
@@ -77,7 +77,7 @@ fastapi dev app/main.py --port 8000
 #### Opción 2: Uvicorn Directo
 
 ```bash
-uvicorn app.main:app --reload --port 8000
+uvicorn app.run:app --reload --port 8000
 ```
 
 ### 6. Verificar que Funciona
@@ -128,10 +128,6 @@ USER#u001       SUB#f001               Suscripción
 USER#u001       TX#20250822T100000#T001 Transacción
 FUND#f001       PROFILE                 Fondo
 ```
-
-### Datos de Prueba
-
-Los datos de prueba están disponibles en `results.csv` con usuarios, fondos, suscripciones y transacciones de ejemplo.
 
 ## 🌐 Endpoints Disponibles
 
