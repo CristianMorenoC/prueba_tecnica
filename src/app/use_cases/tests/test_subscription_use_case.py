@@ -1,11 +1,11 @@
 import pytest
 from unittest.mock import Mock
 
-from app.use_cases.subscriptions import SubscriptionUseCase
-from app.domain.models.user import User, NotifyChannel
-from app.domain.models.fund import Fund
-from app.domain.models.subscription import Subscription, Status
-from app.domain.models.transaction import TransactionType
+from ..use_cases.subscriptions import SubscriptionUseCase
+from ..domain.models.user import User, NotifyChannel
+from ..domain.models.fund import Fund
+from ..domain.models.subscription import Subscription, Status
+from ..domain.models.transaction import TransactionType
 
 
 class TestSubscriptionUseCaseBusinessRules:

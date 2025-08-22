@@ -1,8 +1,8 @@
 import boto3
 import os
 from botocore.exceptions import ClientError
-from app.domain.models.fund import Fund
-from app.application.ports.funds import FundPort
+from domain.models.fund import Fund
+from application.ports.funds import FundPort
 from typing import List, Tuple, Dict, Any
 
 

@@ -1,8 +1,8 @@
 import boto3
 import os
 from botocore.exceptions import ClientError
-from app.application.ports.users import UserPort
-from app.domain.models.user import User, NotifyChannel
+from application.ports.users import UserPort
+from domain.models.user import User, NotifyChannel
 from typing import Any
 
 

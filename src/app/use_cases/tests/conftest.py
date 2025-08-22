@@ -4,9 +4,9 @@ Configuración común para tests de use cases.
 import pytest
 from unittest.mock import Mock
 
-from app.domain.models.user import User, NotifyChannel
-from app.domain.models.fund import Fund
-from app.domain.models.subscription import Subscription, Status
+from ..domain.models.user import User, NotifyChannel
+from ..domain.models.fund import Fund
+from ..domain.models.subscription import Subscription, Status
 
 
 @pytest.fixture
@@ -114,7 +114,7 @@ def subscription_use_case(
     mock_user_port
 ):
     """Instancia del caso de uso con todos los mocks inyectados."""
-    from app.use_cases.subscriptions import SubscriptionUseCase
+    from ..use_cases.subscriptions import SubscriptionUseCase
 
     return SubscriptionUseCase(
         funds_port=mock_funds_port,

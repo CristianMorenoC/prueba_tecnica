@@ -1,5 +1,5 @@
 from typing import Protocol, Optional, Iterable, Any
-from app.domain.models.subscription import Subscription
+from domain.models.subscription import Subscription
 
 
 class SubscriptionPort(Protocol):

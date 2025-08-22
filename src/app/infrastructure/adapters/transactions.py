@@ -3,8 +3,8 @@ import os
 from datetime import datetime
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Attr, Key
-from app.application.ports.transactions import TransactionPort
-from app.domain.models.transaction import Transaction, TransactionType
+from application.ports.transactions import TransactionPort
+from domain.models.transaction import Transaction, TransactionType
 from typing import Iterable, Dict, Any
 
 

@@ -3,8 +3,8 @@ import os
 from datetime import datetime
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Attr
-from app.application.ports.subscriptions import SubscriptionPort
-from app.domain.models.subscription import Subscription, Status
+from application.ports.subscriptions import SubscriptionPort
+from domain.models.subscription import Subscription, Status
 from typing import Optional, Iterable, Any
 
 

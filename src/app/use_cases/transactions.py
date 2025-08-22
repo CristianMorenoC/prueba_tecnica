@@ -1,7 +1,7 @@
-from app.application.ports.transactions import TransactionPort
+from application.ports.transactions import TransactionPort
 from datetime import datetime
 from typing import Iterable
-from app.domain.models.transaction import Transaction
+from domain.models.transaction import Transaction
 
 
 class TransactionUseCase:

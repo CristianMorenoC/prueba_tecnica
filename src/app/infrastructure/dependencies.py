@@ -4,20 +4,20 @@ import boto3
 from functools import lru_cache
 
 # Ports (Interfaces)
-from app.application.ports.funds import FundPort
-from app.application.ports.subscriptions import SubscriptionPort
-from app.application.ports.transactions import TransactionPort
-from app.application.ports.users import UserPort
+from application.ports.funds import FundPort
+from application.ports.subscriptions import SubscriptionPort
+from application.ports.transactions import TransactionPort
+from application.ports.users import UserPort
 
 # Adapters (Implementations)
-from app.infrastructure.adapters.funds import FundAdapter
-from app.infrastructure.adapters.subscription import SubscriptionAdapter
-from app.infrastructure.adapters.transactions import TransactionAdapter
-from app.infrastructure.adapters.users import UserAdapter
+from infrastructure.adapters.funds import FundAdapter
+from infrastructure.adapters.subscription import SubscriptionAdapter
+from infrastructure.adapters.transactions import TransactionAdapter
+from infrastructure.adapters.users import UserAdapter
 
 # Use Cases
-from app.use_cases.subscriptions import SubscriptionUseCase
-from app.use_cases.transactions import TransactionUseCase
+from use_cases.subscriptions import SubscriptionUseCase
+from use_cases.transactions import TransactionUseCase
 
 
 @lru_cache()

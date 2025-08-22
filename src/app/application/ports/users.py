@@ -1,5 +1,5 @@
 from typing import Protocol, Any
-from app.domain.models.user import User
+from domain.models.user import User
 
 
 class UserPort(Protocol):

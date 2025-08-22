@@ -1,6 +1,6 @@
 from typing import Protocol, Iterable
 from datetime import datetime
-from app.domain.models.transaction import Transaction
+from domain.models.transaction import Transaction
 
 
 class TransactionPort(Protocol):

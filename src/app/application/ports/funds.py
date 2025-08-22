@@ -1,4 +1,4 @@
-from app.domain.models.fund import Fund
+from domain.models.fund import Fund
 from typing import Protocol, Tuple
 
 

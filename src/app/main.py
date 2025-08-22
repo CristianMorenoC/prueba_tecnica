@@ -12,8 +12,8 @@ app = FastAPI(
     root_path="/Prod"
 )
 
-# Import routes to register endpoints
-from app.routes import routes
+# Import routes after app creation to avoid circular imports
+from routes.routes import *
 
 # Lambda handler
 lambda_handler = Mangum(app)

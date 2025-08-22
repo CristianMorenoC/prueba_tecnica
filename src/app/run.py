@@ -11,4 +11,4 @@ app = FastAPI(
 )
 
 # Import development routes
-from app.routes import routes_dev
+from routes import routes_dev

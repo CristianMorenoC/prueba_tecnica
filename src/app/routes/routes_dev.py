@@ -1,10 +1,10 @@
 from fastapi import Depends
-from app.run import app
-from app.use_cases.subscriptions import SubscriptionUseCase
-from app.use_cases.transactions import TransactionUseCase
-from app.domain.models.user import User, NotifyChannel
-from app.domain.models.requests import SubscribeRequest
-from app.infrastructure.dependencies import (
+from ..run import app
+from ..use_cases.subscriptions import SubscriptionUseCase
+from ..use_cases.transactions import TransactionUseCase
+from ..domain.models.user import User, NotifyChannel
+from ..domain.models.requests import SubscribeRequest
+from ..infrastructure.dependencies import (
     get_subscription_use_case,
     get_transaction_use_case
 )
