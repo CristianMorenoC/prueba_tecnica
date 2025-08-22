@@ -33,14 +33,14 @@ class SubscriptionUseCase:
 
         # check if the amount is less than the minimum required
         if amount < fund.min_amount:
-            raise ValueError("Amount is less than the minimum required")
+            raise ValueError(f"No tiene saldo disponible para vincularse al fondo ${fund.name}")
 
         # calculate new balance
         new_balance = user.balance - amount
 
         # check if the user has enough balance
         if new_balance < 0:
-            raise ValueError("Insufficient balance")
+            raise ValueError(f"No hay suficiente saldo para vincularse al fondo ${fund.name}")
         
         # update user balance
         self._user_port.update(user.user_id, new_balance=new_balance)
