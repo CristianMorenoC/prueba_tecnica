@@ -2,7 +2,7 @@
 
 ## 1. Arquitectura de Seguridad General
 
-![Diagrama arquitectura](image-1.png)
+![Diagrama arquitectura](image-2.png)
 
 ### Componentes AWS
 La arquitectura de seguridad se basa en los siguientes servicios de AWS:
