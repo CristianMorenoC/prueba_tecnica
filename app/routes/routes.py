@@ -10,9 +10,9 @@ from app.infrastructure.dependencies import (
 )
 
 
-@app.get("/user/transactions")
+@app.get("/user/{user_id}/transactions")
 async def get_transactions_by_user(
-    user_id: str = "u002",  # TODO: Get from authentication
+    user_id: str,
     use_case: TransactionUseCase = Depends(get_transaction_use_case)
 ):
     """Get all transactions for a user."""
@@ -24,13 +24,14 @@ async def get_transactions_by_user(
 @app.post("/user/{user_id}/subscribe/{fund_id}")
 async def subscribe(
     fund_id: str,
+    user_id: str,
     request: SubscribeRequest,
     use_case: SubscriptionUseCase = Depends(get_subscription_use_case)
 ):
     """Subscribe a user to a fund."""
     return use_case.subscribe(
         user=User(
-            user_id="u005",
+            user_id=user_id,
             balance=300000,
             email="eve@example.com",
             name="Eve",
@@ -42,17 +43,24 @@ async def subscribe(
     )
 
 
-@app.delete("/user/{fund_id}/subscribe")
-async def unsubscribedos(
+@app.delete("/user/{user_id}/subscribe/{fund_id}")
+async def cancel_subs(
     fund_id: str,
-    user_id: str = "u006",  # TODO: Get from authentication
+    user_id: str,  # TODO: Get from authentication
     use_case: SubscriptionUseCase = Depends(get_subscription_use_case)
 ):
     """Cancel a user's subscription to a fund."""
     return use_case.cancel_subscription(
         fund_id=fund_id,
-        user_id=user_id
-    )
+        user=User(
+            user_id=user_id,
+            balance=300000,
+            email="eve@example.com",
+            name="Eve",
+            notify_channel=NotifyChannel.EMAIL,
+            phone="+1-202-555-0105"
+        )
+        )
 
 
 @app.get("/transactions")
