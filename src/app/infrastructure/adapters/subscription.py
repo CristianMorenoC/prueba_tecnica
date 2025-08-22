@@ -1,25 +1,24 @@
 import boto3
-import os
 from datetime import datetime
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Attr
 from application.ports.subscriptions import SubscriptionPort
 from domain.models.subscription import Subscription, Status
 from typing import Optional, Iterable, Any
+from config import APPCHALLENGE_TABLE_NAME, AWS_REGION
 
 
 class SubscriptionAdapter(SubscriptionPort):
     def __init__(self, dynamodb_resource=None):
         if dynamodb_resource is None:
-            # En Lambda, usar IAM Role automático
             self.dynamodb = boto3.resource(
                 'dynamodb',
-                region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
+                region_name=AWS_REGION
             )
         else:
             self.dynamodb = dynamodb_resource
 
-        self.subscriptions_table = self.dynamodb.Table(os.getenv('APPCHALLENGE_TABLE_NAME', 'AppChallenge'))
+        self.subscriptions_table = self.dynamodb.Table(APPCHALLENGE_TABLE_NAME)
 
     def subscribe(
         self,

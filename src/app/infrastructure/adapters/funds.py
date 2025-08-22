@@ -1,23 +1,22 @@
 import boto3
-import os
 from botocore.exceptions import ClientError
 from domain.models.fund import Fund
 from application.ports.funds import FundPort
 from typing import List, Tuple, Dict, Any
+from config import APPCHALLENGE_TABLE_NAME, AWS_REGION
 
 
 class FundAdapter(FundPort):
     def __init__(self, dynamodb_resource=None):
         if dynamodb_resource is None:
-            # En Lambda, usar IAM Role automático
             self.dynamodb = boto3.resource(
                 'dynamodb',
-                region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
+                region_name=AWS_REGION
             )
         else:
             self.dynamodb = dynamodb_resource
 
-        self.funds_table = self.dynamodb.Table(os.getenv('APPCHALLENGE_TABLE_NAME', 'AppChallenge'))
+        self.funds_table = self.dynamodb.Table(APPCHALLENGE_TABLE_NAME)
 
     def get_by_id(self, fund_id: str) -> Fund:
         """Get a fund by its ID."""

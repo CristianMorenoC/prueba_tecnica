@@ -1,7 +1,7 @@
 from fastapi import Depends
-import os
 import boto3
 from functools import lru_cache
+from config import AWS_REGION
 
 # Ports (Interfaces)
 from application.ports.funds import FundPort
@@ -23,10 +23,9 @@ from use_cases.transactions import TransactionUseCase
 @lru_cache()
 def get_dynamodb_resource():
     """Create and cache DynamoDB resource connection."""
-    # En Lambda, usar el IAM Role automático en lugar de credenciales hardcodeadas
     return boto3.resource(
         'dynamodb',
-        region_name=os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
+        region_name=AWS_REGION
     )
 
 
