@@ -43,17 +43,17 @@ async def subscribe(
     )
 
 
-@app.delete("/user/{fund_id}/subscribe")
-async def unsubscribedos(
+@app.delete("/user/{user_id}/subscribe/{fund_id}")
+async def cancel_subs(
     fund_id: str,
-    user_id: str = "u006",  # TODO: Get from authentication
+    user_id: str,  # TODO: Get from authentication
     use_case: SubscriptionUseCase = Depends(get_subscription_use_case)
 ):
     """Cancel a user's subscription to a fund."""
     return use_case.cancel_subscription(
         fund_id=fund_id,
         user=User(
-            user_id="u005",
+            user_id=user_id,
             balance=300000,
             email="eve@example.com",
             name="Eve",
