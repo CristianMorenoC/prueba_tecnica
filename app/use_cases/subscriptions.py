@@ -30,11 +30,11 @@ class SubscriptionUseCase:
         fund = self._funds_port.get_by_id(fund_id)
         if not fund:
             raise ValueError("Fund not found")
-        
+
         # check if the amount is less than the minimum required
         if amount < fund.min_amount:
             raise ValueError("Amount is less than the minimum required")
-        
+
         # calculate new balance
         new_balance = user.balance - amount
 
@@ -70,11 +70,41 @@ class SubscriptionUseCase:
 
     def cancel_subscription(
             self,
-            user_id: str,
-            fund_id: str
+            fund_id: str,
+            user: User,
             ) -> Subscription:
-        """Cancel a user's subscription to a fund."""
-        subscription = self._subscription_port.cancel(user_id, fund_id)
-        if (not subscription):
-            raise ValueError("Subscription not found")
+        """Subscribe a user to a fund."""
+        fund = self._funds_port.get_by_id(fund_id)
+        if not fund:
+            raise ValueError("Fund not found")
+        
+        # get active user's active subscription
+        subs = self._subscription_port.get(user.user_id, fund_id)
+
+        if not subs or subs.status != Status.ACTIVE:
+            raise ValueError("Active subscription not found")
+
+        # calculate new balance
+        new_balance = user.balance + subs.amount
+        
+        # update user balance
+        self._user_port.update(user.user_id, new_balance=new_balance)
+
+        subscription = self._subscription_port.update(
+            user.user_id,
+            fund_id, status=Status.CANCELLED
+        )
+
+        # create a transaction for the subscription
+        transaction = Transaction(
+            user_id=user.user_id,
+            fund_id=fund_id,
+            amount=new_balance,
+            transaction_type=TransactionType.OPEN,
+            timestamp=datetime.now().isoformat(),
+            prev_balance=user.balance,
+            new_balance=new_balance
+        )
+
+        self._transaction_port.save(transaction)
         return subscription

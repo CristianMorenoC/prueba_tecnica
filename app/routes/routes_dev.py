@@ -1,9 +1,9 @@
 from fastapi import Depends
-from app.main import app
+from app.run import app
 from app.use_cases.subscriptions import SubscriptionUseCase
 from app.use_cases.transactions import TransactionUseCase
-from app.domain.models.requests import SubscribeRequest
 from app.domain.models.user import User, NotifyChannel
+from app.domain.models.requests import SubscribeRequest
 from app.infrastructure.dependencies import (
     get_subscription_use_case,
     get_transaction_use_case
@@ -42,16 +42,22 @@ async def subscribe(
     )
 
 
-@app.delete("/user/{fund_id}/subscribe")
-async def unsubscribedos(
+@app.delete("/user/{user_id}/subscribe/{fund_id}")
+async def cancel_subscribtion(
     fund_id: str,
-    user_id: str = "u006",  # TODO: Get from authentication
     use_case: SubscriptionUseCase = Depends(get_subscription_use_case)
 ):
-    """Cancel a user's subscription to a fund."""
+    """Subscribe a user to a fund."""
     return use_case.cancel_subscription(
         fund_id=fund_id,
-        user_id=user_id
+        user=User(
+            user_id="u005",
+            balance=300000,
+            email="eve@example.com",
+            name="Eve",
+            notify_channel=NotifyChannel.EMAIL,
+            phone="+1-202-555-0105"
+        ),
     )
 
 

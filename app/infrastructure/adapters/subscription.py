@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Attr
 from app.application.ports.subscriptions import SubscriptionPort
 from app.domain.models.subscription import Subscription, Status
-from typing import Optional, Iterable
+from typing import Optional, Iterable, Any
 
 
 class SubscriptionAdapter(SubscriptionPort):
@@ -112,7 +112,65 @@ class SubscriptionAdapter(SubscriptionPort):
 
         except ClientError as e:
             raise Exception(
-                f"Error retrieving subscription: {e.response['Error']['Message']}"
+                f"Error retrieving subscription: {
+                    e.response['Error']['Message']
+                }"
+            )
+
+    def update(
+            self,
+            user_id: str,
+            fund_id: str,
+            **params: Any
+            ) -> Subscription:
+        """Update a subscription."""
+        try:
+            if not params:
+                raise ValueError("No fields to update")
+
+            # Build update expression dynamically
+            update_expression = "SET "
+            expression_values = {}
+            expression_names = {}
+
+            for key, value in params.items():
+                attr_name = f"#{key}"
+                attr_value = f":{key}"
+                update_expression += f"{attr_name} = {attr_value}, "
+                expression_names[attr_name] = key
+                expression_values[attr_value] = (
+                    value.value if hasattr(value, 'value') else value
+                    )
+
+            # Remove trailing comma
+            update_expression = update_expression.rstrip(", ")
+
+            response = self.subscriptions_table.update_item(
+                Key={
+                    'PK': f'USER#{user_id}',
+                    'SK': f'SUB#{fund_id}'
+                },
+                UpdateExpression=update_expression,
+                ExpressionAttributeNames=expression_names,
+                ExpressionAttributeValues=expression_values,
+                ReturnValues='ALL_NEW'
+            )
+
+            item = response['Attributes']
+            return Subscription(
+                user_id=item.get('user_id'),
+                fund_id=item.get('fund_id'),
+                amount=int(item.get('amount', 0)),
+                status=Status(item.get('status')),
+                created_at=item.get('created_at'),
+                cancelled_at=item.get('cancelled_at')
+            )
+
+        except ClientError as e:
+            raise Exception(
+                f"Error updating subscription: {
+                    e.response['Error']['Message']
+                }"
             )
 
     def list_by_user(

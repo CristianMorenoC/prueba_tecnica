@@ -131,8 +131,14 @@ class TransactionAdapter(TransactionPort):
     def save(self, transaction: Transaction) -> Transaction:
         """Save a transaction."""
         try:
+            # Generate unique transaction ID
+            timestamp_clean = transaction.timestamp.replace(':', '').replace('-', '').replace('.', '')[:15]
+            transaction_id = f"T{timestamp_clean}"
+            
             self.transactions_table.put_item(
                 Item={
+                    'PK': f'USER#{transaction.user_id}',
+                    'SK': f'TX#{timestamp_clean}#{transaction_id}',
                     'user_id': transaction.user_id,
                     'fund_id': transaction.fund_id,
                     'amount': transaction.amount,

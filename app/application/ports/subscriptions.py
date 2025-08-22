@@ -1,4 +1,4 @@
-from typing import Protocol, Optional, Iterable
+from typing import Protocol, Optional, Iterable, Any
 from app.domain.models.subscription import Subscription
 
 
@@ -9,6 +9,9 @@ class SubscriptionPort(Protocol):
 
     def get(self, user_id: str, fund_id: str) -> Optional[Subscription]:
         """Get a subscription by user ID and fund ID."""
+
+    def update(self, user_id: str, fund_id: str, **params: Any) -> Subscription:
+        """Update a subscription."""
 
     def list_by_user(
             self,
