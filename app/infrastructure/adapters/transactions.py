@@ -2,7 +2,7 @@ import boto3
 import os
 from datetime import datetime
 from botocore.exceptions import ClientError
-from boto3.dynamodb.conditions import Attr
+from boto3.dynamodb.conditions import Attr, Key
 from app.application.ports.transactions import TransactionPort
 from app.domain.models.transaction import Transaction, TransactionType
 from typing import Iterable, Dict, Any
@@ -20,7 +20,7 @@ class TransactionAdapter(TransactionPort):
         else:
             self.dynamodb = dynamodb_resource
 
-        self.transactions_table = self.dynamodb.Table('Transactions')
+        self.transactions_table = self.dynamodb.Table('AppChallenge')
 
     def get_all(
         self,
@@ -29,24 +29,30 @@ class TransactionAdapter(TransactionPort):
     ) -> Iterable[Transaction]:
         """Get all transactions, optionally filtered by a starting date."""
         try:
-            scan_kwargs: Dict[str, Any] = {'Limit': limit}
+            scan_kwargs: Dict[str, Any] = {
+                'Limit': limit,
+                'FilterExpression': Attr('SK').begins_with('TX#')
+            }
 
             if since:
-                scan_kwargs['FilterExpression'] = Attr('timestamp').gte(
-                    since.isoformat()
+                scan_kwargs['FilterExpression'] = (
+                    scan_kwargs['FilterExpression'] &
+                    Attr('timestamp').gte(since.isoformat())
                 )
 
             response = self.transactions_table.scan(**scan_kwargs)
 
             for item in response.get('Items', []):
                 yield Transaction(
-                    user_id=item['user_id'],
-                    fund_id=item['fund_id'],
-                    amount=float(item['amount']),
-                    transaction_type=TransactionType(item['transaction_type']),
-                    timestamp=item['timestamp'],
-                    prev_balance=float(item['prev_balance']),
-                    new_balance=float(item['new_balance'])
+                    user_id=item.get('user_id'),
+                    fund_id=item.get('fund_id'),
+                    amount=int(item.get('amount', 0)),
+                    transaction_type=TransactionType(
+                        item.get('transaction_type')
+                    ),
+                    timestamp=item.get('timestamp'),
+                    prev_balance=int(item.get('prev_balance', 0)),
+                    new_balance=int(item.get('new_balance', 0))
                 )
 
         except ClientError as e:
@@ -62,20 +68,24 @@ class TransactionAdapter(TransactionPort):
     ) -> Iterable[Transaction]:
         """Get all transactions for a specific fund."""
         try:
-            response = self.transactions_table.scan(
-                FilterExpression=Attr('fund_id').eq(fund_id),
+            response = self.transactions_table.query(
+                IndexName='fund_id-index',
+                KeyConditionExpression=Key('fund_id').eq(fund_id),
+                FilterExpression=Attr('SK').begins_with('TX#'),
                 Limit=limit
             )
 
             for item in response.get('Items', []):
                 yield Transaction(
-                    user_id=item['user_id'],
-                    fund_id=item['fund_id'],
-                    amount=float(item['amount']),
-                    transaction_type=TransactionType(item['transaction_type']),
-                    timestamp=item['timestamp'],
-                    prev_balance=float(item['prev_balance']),
-                    new_balance=float(item['new_balance'])
+                    user_id=item.get('user_id'),
+                    fund_id=item.get('fund_id'),
+                    amount=int(item.get('amount', 0)),
+                    transaction_type=TransactionType(
+                        item.get('transaction_type')
+                    ),
+                    timestamp=item.get('timestamp'),
+                    prev_balance=int(item.get('prev_balance', 0)),
+                    new_balance=int(item.get('new_balance', 0))
                 )
 
         except ClientError as e:
@@ -91,20 +101,25 @@ class TransactionAdapter(TransactionPort):
     ) -> Iterable[Transaction]:
         """Get all transactions for a specific user."""
         try:
-            response = self.transactions_table.scan(
-                FilterExpression=Attr('user_id').eq(user_id),
+            response = self.transactions_table.query(
+                KeyConditionExpression=(
+                    Key('PK').eq(f'USER#{user_id}') &
+                    Key('SK').begins_with('TX#')
+                ),
                 Limit=limit
             )
 
             for item in response.get('Items', []):
                 yield Transaction(
-                    user_id=item['user_id'],
-                    fund_id=item['fund_id'],
-                    amount=float(item['amount']),
-                    transaction_type=TransactionType(item['transaction_type']),
-                    timestamp=item['timestamp'],
-                    prev_balance=float(item['prev_balance']),
-                    new_balance=float(item['new_balance'])
+                    user_id=item.get('user_id'),
+                    fund_id=item.get('fund_id'),
+                    amount=int(item.get('amount', 0)),
+                    transaction_type=TransactionType(
+                        item.get('transaction_type')
+                    ),
+                    timestamp=item.get('timestamp'),
+                    prev_balance=int(item.get('prev_balance', 0)),
+                    new_balance=int(item.get('new_balance', 0))
                 )
 
         except ClientError as e:

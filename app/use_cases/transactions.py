@@ -14,8 +14,15 @@ class TransactionUseCase:
             since: datetime | None = None
             ) -> Iterable[Transaction]:
         """Get all transactions, optionally filtered by a starting date."""
-        if (since is None):
-            since = datetime.now()
-        elif (since > datetime.now()):
-            raise ValueError("Since date cannot be in the future")
-        return self.transaction_port.get_all(limit=limit, since=since)
+        if (since is not None):
+            return self.transaction_port.get_all(limit=limit, since=since)
+
+        return self.transaction_port.get_all(limit=limit)
+    
+    def get_transactions_by_user(
+            self,
+            user_id: str,
+            limit: int = 50
+            ) -> Iterable[Transaction]:
+        """Get all transactions for a specific user."""
+        return self.transaction_port.get_by_user(user_id=user_id, limit=limit)

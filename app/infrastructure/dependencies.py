@@ -7,11 +7,13 @@ from functools import lru_cache
 from app.application.ports.funds import FundPort
 from app.application.ports.subscriptions import SubscriptionPort
 from app.application.ports.transactions import TransactionPort
+from app.application.ports.users import UserPort
 
 # Adapters (Implementations)
 from app.infrastructure.adapters.funds import FundAdapter
 from app.infrastructure.adapters.subscription import SubscriptionAdapter
 from app.infrastructure.adapters.transactions import TransactionAdapter
+from app.infrastructure.adapters.users import UserAdapter
 
 # Use Cases
 from app.use_cases.subscriptions import SubscriptionUseCase
@@ -49,6 +51,13 @@ def get_transaction_repository(
     """Factory for Transaction repository - DynamoDB implementation."""
     return TransactionAdapter(dynamodb)
 
+
+def get_user_repository(
+    dynamodb=Depends(get_dynamodb_resource)
+) -> UserPort:
+    """Factory for User repository - DynamoDB implementation."""
+    return UserAdapter(dynamodb)
+
 # ============================================
 # USE CASE FACTORIES
 # ============================================
@@ -56,12 +65,16 @@ def get_transaction_repository(
 
 def get_subscription_use_case(
     fund_port: FundPort = Depends(get_fund_repository),
-    subscription_port: SubscriptionPort = Depends(get_subscription_repository)
+    subscription_port: SubscriptionPort = Depends(get_subscription_repository),
+    transaction_port: TransactionPort = Depends(get_transaction_repository),
+    user_port: UserPort = Depends(get_user_repository)
 ) -> SubscriptionUseCase:
     """Factory for Subscription use case with all dependencies injected."""
     return SubscriptionUseCase(
         funds_port=fund_port,
-        subscription_port=subscription_port
+        subscription_port=subscription_port,
+        transaction_port=transaction_port,
+        user_port=user_port
     )
 
 

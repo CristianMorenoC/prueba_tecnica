@@ -12,7 +12,7 @@ class Status(str, Enum):
 class Subscription(BaseModel):
     user_id: str
     fund_id: str
-    amount: float
+    amount: int
     status: Status
     created_at: Optional[str] = datetime.now().isoformat()
     cancelled_at: Optional[str] = None

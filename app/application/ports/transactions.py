@@ -24,3 +24,6 @@ class TransactionPort(Protocol):
             limit: int = 50
             ) -> Iterable[Transaction]:
         """Get all transactions for a specific user."""
+
+    def save(self, transaction: Transaction) -> Transaction:
+        """Save a transaction."""

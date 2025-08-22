@@ -10,8 +10,8 @@ class TransactionType(str, Enum):
 class Transaction(BaseModel):
     user_id: str
     fund_id: str
-    amount: float
+    amount: int
     transaction_type: TransactionType
     timestamp: str
-    prev_balance: float
-    new_balance: float
+    prev_balance: int
+    new_balance: int

@@ -13,5 +13,5 @@ class User(BaseModel):
     name: str
     email: str
     phone: Optional[str]
-    balance: float
+    balance: int
     notify_channel: NotifyChannel

@@ -2,8 +2,10 @@ import boto3
 import os
 from datetime import datetime
 from botocore.exceptions import ClientError
+from boto3.dynamodb.conditions import Attr
 from app.application.ports.subscriptions import SubscriptionPort
 from app.domain.models.subscription import Subscription, Status
+from typing import Optional, Iterable
 
 
 class SubscriptionAdapter(SubscriptionPort):
@@ -18,13 +20,13 @@ class SubscriptionAdapter(SubscriptionPort):
         else:
             self.dynamodb = dynamodb_resource
 
-        self.subscriptions_table = self.dynamodb.Table('Subscriptions')
+        self.subscriptions_table = self.dynamodb.Table('AppChallenge')
 
     def subscribe(
         self,
         user_id: str,
         fund_id: str,
-        amount: float
+        amount: int
     ) -> Subscription:
         """Subscribe a user to a fund."""
         try:
@@ -48,7 +50,10 @@ class SubscriptionAdapter(SubscriptionPort):
         """Unsubscribe a user from a fund (change status to cancelled)."""
         try:
             response = self.subscriptions_table.update_item(
-                Key={'user_id': user_id, 'fund_id': fund_id},
+                Key={
+                    'PK': f'USER#{user_id}',
+                    'SK': f'SUB#{fund_id}'
+                },
                 UpdateExpression=(
                     'SET #status = :cancelled, cancelled_at = :timestamp'
                 ),
@@ -64,7 +69,7 @@ class SubscriptionAdapter(SubscriptionPort):
             return Subscription(
                 user_id=item['user_id'],
                 fund_id=item['fund_id'],
-                amount=float(item['amount']),
+                amount=int(item['amount']),
                 status=Status(item['status']),
                 created_at=item.get('created_at'),
                 cancelled_at=item.get('cancelled_at')
@@ -77,3 +82,96 @@ class SubscriptionAdapter(SubscriptionPort):
                 f"Error cancelling subscription: "
                 f"{e.response['Error']['Message']}"
             )
+
+    def _add(self, subscription: Subscription) -> Subscription:
+        """Add a subscription from seed for testing."""
+        return self.save(subscription)
+
+    def get(self, user_id: str, fund_id: str) -> Optional[Subscription]:
+        """Get a subscription by user ID and fund ID."""
+        try:
+            response = self.subscriptions_table.get_item(
+                Key={
+                    'PK': f'USER#{user_id}',
+                    'SK': f'SUB#{fund_id}'
+                }
+            )
+
+            if 'Item' not in response:
+                return None
+
+            item = response['Item']
+            return Subscription(
+                user_id=item.get('user_id'),
+                fund_id=item.get('fund_id'),
+                amount=int(item.get('amount', 0)),
+                status=Status(item.get('status')),
+                created_at=item.get('created_at'),
+                cancelled_at=item.get('cancelled_at')
+            )
+
+        except ClientError as e:
+            raise Exception(
+                f"Error retrieving subscription: {e.response['Error']['Message']}"
+            )
+
+    def list_by_user(
+        self,
+        user_id: str,
+        status: str | None = None
+    ) -> Iterable[Subscription]:
+        """List subscriptions by user ID, filtered by status."""
+        try:
+            scan_kwargs = {
+                'FilterExpression': Attr('PK').eq(f'USER#{user_id}') & Attr('SK').begins_with('SUB#')
+            }
+
+            if status:
+                scan_kwargs['FilterExpression'] = (
+                    scan_kwargs['FilterExpression'] & Attr('status').eq(status)
+                )
+
+            response = self.subscriptions_table.scan(**scan_kwargs)
+
+            for item in response.get('Items', []):
+                yield Subscription(
+                    user_id=item.get('user_id'),
+                    fund_id=item.get('fund_id'),
+                    amount=int(item.get('amount', 0)),
+                    status=Status(item.get('status')),
+                    created_at=item.get('created_at'),
+                    cancelled_at=item.get('cancelled_at')
+                )
+
+        except ClientError as e:
+            raise Exception(
+                f"Error listing subscriptions by user: {e.response['Error']['Message']}"
+            )
+
+    def save(self, subscription: Subscription) -> Subscription:
+        """Save a subscription."""
+        try:
+            item = {
+                'PK': f'USER#{subscription.user_id}',
+                'SK': f'SUB#{subscription.fund_id}',
+                'user_id': subscription.user_id,
+                'fund_id': subscription.fund_id,
+                'amount': subscription.amount,
+                'status': subscription.status.value,
+                'created_at': subscription.created_at
+            }
+
+            if subscription.cancelled_at:
+                item['cancelled_at'] = subscription.cancelled_at
+
+            self.subscriptions_table.put_item(Item=item)
+            return subscription
+
+        except ClientError as e:
+            raise Exception(
+                f"Error saving subscription: {e.response['Error']['Message']}"
+            )
+
+    def cancel(self, user_id: str, fund_id: str) -> Subscription:
+        """Cancel a subscription."""
+        return self.unsubscribe(user_id, fund_id)

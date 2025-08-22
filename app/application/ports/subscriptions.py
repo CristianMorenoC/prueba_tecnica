@@ -23,7 +23,12 @@ class SubscriptionPort(Protocol):
     def cancel(self, user_id: str, fund_id: str) -> Subscription:
         """Cancel a subscription."""
 
-    def subscribe(self, user_id: str, fund_id: str, amount: float) -> Subscription:
+    def subscribe(
+        self,
+        user_id: str,
+        fund_id: str,
+        amount: int
+    ) -> Subscription:
         """Subscribe a user to a fund."""
 
     def unsubscribe(self, user_id: str, fund_id: str) -> Subscription:

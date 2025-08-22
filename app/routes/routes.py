@@ -9,25 +9,39 @@ from app.infrastructure.dependencies import (
 )
 
 
-@app.post("/subscribe/{fund_id}")
+@app.get("/user/transactions")
+async def get_transactions_by_user(
+    user_id: str = "u002",  # TODO: Get from authentication
+    use_case: TransactionUseCase = Depends(get_transaction_use_case)
+):
+    """Get all transactions for a user."""
+    return use_case.get_transactions_by_user(
+        user_id=user_id
+    )
+
+
+@app.post("/user/{user_id}/subscribe/{fund_id}")
 async def subscribe(
     fund_id: str,
     request: SubscribeRequest,
-    user_id: str = "user123",  # TODO: Get from authentication
+    user_id: str = "u007",  # TODO: Get from authentication
     use_case: SubscriptionUseCase = Depends(get_subscription_use_case)
 ):
     """Subscribe a user to a fund."""
     return use_case.subscribe(
+        user={
+            user_id = "USER#u005",
+
+        },
         fund_id=fund_id,
-        user_id=user_id,
         amount=request.amount
     )
 
 
-@app.post("/unsubscribe/{fund_id}")
-async def unsubscribe(
+@app.delete("/user/{fund_id}/subscribe")
+async def unsubscribedos(
     fund_id: str,
-    user_id: str = "user123",  # TODO: Get from authentication
+    user_id: str = "u006",  # TODO: Get from authentication
     use_case: SubscriptionUseCase = Depends(get_subscription_use_case)
 ):
     """Cancel a user's subscription to a fund."""
@@ -37,7 +51,7 @@ async def unsubscribe(
     )
 
 
-@app.get("/history")
+@app.get("/transactions")
 async def history(
     use_case: TransactionUseCase = Depends(get_transaction_use_case)
 ):

@@ -18,22 +18,27 @@ class FundAdapter(FundPort):
         else:
             self.dynamodb = dynamodb_resource
 
-        self.funds_table = self.dynamodb.Table('Funds')
+        self.funds_table = self.dynamodb.Table('AppChallenge')
 
     def get_by_id(self, fund_id: str) -> Fund:
         """Get a fund by its ID."""
         try:
-            response = self.funds_table.get_item(Key={'fund_id': fund_id})
+            response = self.funds_table.get_item(
+                Key={
+                    'PK': f'FUND#{fund_id}',
+                    'SK': 'PROFILE'
+                }
+            )
 
             if 'Item' not in response:
                 raise ValueError(f"Fund with ID {fund_id} not found")
 
             item = response['Item']
             return Fund(
-                fund_id=item['fund_id'],
-                name=item['name'],
-                min_amount=float(item['min_amount']),
-                category=item['category']
+                fund_id=item.get('fund_id'),
+                name=item.get('name'),
+                min_amount=float(item.get('min_amount', 0)),
+                category=item.get('category')
             )
         except ClientError as e:
             raise Exception(
