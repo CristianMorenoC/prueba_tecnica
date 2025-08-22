@@ -127,7 +127,8 @@ class DynamoDBRecordProcessor(RecordProcessorPort):
         elif 'L' in attribute:
             return str(attribute['L'])
         elif 'NULL' in attribute:
-            return None
+            # Handle DynamoDB NULL values
+            return None if attribute['NULL'] else None
         elif 'BOOL' in attribute:
             return str(attribute['BOOL'])
         

@@ -120,6 +120,7 @@ class UserProfileNotificationUseCase:
         """
         
         return UserProfileNotification(
+            type=NotificationType.USER_PROFILE_CREATED,  # Determinado por la lambda
             channel=NotificationChannel.EMAIL,
             recipient=user_data["email"],
             subject=subject,

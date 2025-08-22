@@ -28,16 +28,8 @@ class SubscriptionNotification(NotificationMessage):
     """Notification for subscription events"""
     user_id: str
     fund_id: str
-    
-    def __init__(self, **data):
-        super().__init__(**data)
-        self.type = NotificationType.SUBSCRIPTION_CREATED if "created" in data.get("subject", "").lower() else NotificationType.SUBSCRIPTION_CANCELLED
 
 
 class UserProfileNotification(NotificationMessage):
     """Notification for user profile creation"""
     user_id: str
-    
-    def __init__(self, **data):
-        super().__init__(**data)
-        self.type = NotificationType.USER_PROFILE_CREATED

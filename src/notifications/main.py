@@ -144,8 +144,9 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Processing results
     """
+    print(event)
+
     logger.info(f"Received DynamoDB Stream event with {len(event.get('Records', []))} records")
-    
     try:
         # Extract DynamoDB records from event
         records = event.get('Records', [])

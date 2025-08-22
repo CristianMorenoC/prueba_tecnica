@@ -11,19 +11,19 @@ class EventName(str, Enum):
 
 class DynamoDBImage(BaseModel):
     """DynamoDB attribute value representation"""
-    PK: Optional[Dict[str, str]] = None
-    SK: Optional[Dict[str, str]] = None
-    user_id: Optional[Dict[str, str]] = None
-    name: Optional[Dict[str, str]] = None
-    email: Optional[Dict[str, str]] = None
-    phone: Optional[Dict[str, str]] = None
-    balance: Optional[Dict[str, Union[str, int]]] = None
-    notify_channel: Optional[Dict[str, str]] = None
-    fund_id: Optional[Dict[str, str]] = None
-    amount: Optional[Dict[str, Union[str, int]]] = None
-    status: Optional[Dict[str, str]] = None
-    created_at: Optional[Dict[str, str]] = None
-    cancelled_at: Optional[Dict[str, str]] = None
+    PK: Optional[Dict[str, Any]] = None
+    SK: Optional[Dict[str, Any]] = None
+    user_id: Optional[Dict[str, Any]] = None
+    name: Optional[Dict[str, Any]] = None
+    email: Optional[Dict[str, Any]] = None
+    phone: Optional[Dict[str, Any]] = None
+    balance: Optional[Dict[str, Any]] = None
+    notify_channel: Optional[Dict[str, Any]] = None
+    fund_id: Optional[Dict[str, Any]] = None
+    amount: Optional[Dict[str, Any]] = None
+    status: Optional[Dict[str, Any]] = None
+    created_at: Optional[Dict[str, Any]] = None
+    cancelled_at: Optional[Dict[str, Any]] = None
 
 
 class DynamoDBStreamRecord(BaseModel):
@@ -69,14 +69,22 @@ class ProcessedRecord(BaseModel):
     
     @property
     def user_id(self) -> Optional[str]:
-        """Extract user ID from PK"""
+        """Extract user ID from data or PK as fallback"""
+        # Try to get user_id from data first
+        if "user_id" in self.data:
+            return self.data["user_id"]
+        # Fallback to extracting from PK
         if self.pk.startswith("USER#"):
             return self.pk.replace("USER#", "")
         return None
     
     @property
     def fund_id(self) -> Optional[str]:
-        """Extract fund ID from SK for subscriptions"""
+        """Extract fund ID from data or SK as fallback"""
+        # Try to get fund_id from data first
+        if "fund_id" in self.data:
+            return self.data["fund_id"]
+        # Fallback to extracting from SK
         if self.sk.startswith("SUB#"):
             return self.sk.replace("SUB#", "")
         return None

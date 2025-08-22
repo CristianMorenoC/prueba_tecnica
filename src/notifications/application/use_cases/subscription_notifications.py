@@ -103,6 +103,7 @@ class SubscriptionNotificationUseCase:
             message = f"Hola {user_data['name']}, tu suscripción al fondo {record.fund_id} ha sido cancelada."
         
         return SubscriptionNotification(
+            type=notification_type,  # Determinado por la lambda basado en el evento
             channel=NotificationChannel.EMAIL,
             recipient=user_data["email"],
             subject=subject,
@@ -130,6 +131,7 @@ class SubscriptionNotificationUseCase:
             message = f"Tu suscripción al fondo {record.fund_id} ha sido cancelada."
         
         return SubscriptionNotification(
+            type=notification_type,  # Determinado por la lambda basado en el evento
             channel=NotificationChannel.SMS,
             recipient=user_data["phone"],
             subject=subject,
