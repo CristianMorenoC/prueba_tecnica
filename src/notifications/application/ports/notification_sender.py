@@ -21,12 +21,12 @@ class ContactManagerPort(ABC):
     """Port for managing contacts in SNS"""
     
     @abstractmethod
-    async def subscribe_email(self, email: str) -> str:
+    async def subscribe_email(self, email: str, user_id: str) -> str:
         """Subscribe email to SNS topic and return subscription ARN"""
         pass
     
     @abstractmethod
-    async def subscribe_phone(self, phone: str) -> str:
+    async def subscribe_phone(self, phone: str, user_id: str) -> str:
         """Subscribe phone to SNS topic and return subscription ARN"""
         pass
     

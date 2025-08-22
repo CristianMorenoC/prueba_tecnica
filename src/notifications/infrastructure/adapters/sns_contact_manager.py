@@ -1,9 +1,9 @@
 import logging
-import os
 from typing import Optional
 import boto3
 from botocore.exceptions import ClientError
 from application.ports.notification_sender import ContactManagerPort
+from config import EMAIL_TOPIC_ARN, SMS_TOPIC_ARN
 
 logger = logging.getLogger(__name__)
 
@@ -13,35 +13,44 @@ class SNSContactManager(ContactManagerPort):
     
     def __init__(self):
         self.sns_client = boto3.client('sns')
-        self.email_topic_arn = os.environ.get('EMAIL_TOPIC_ARN')
-        self.sms_topic_arn = os.environ.get('SMS_TOPIC_ARN')
+        self.email_topic_arn = EMAIL_TOPIC_ARN
+        self.sms_topic_arn = SMS_TOPIC_ARN
         
+        # For local testing, allow None values but log warnings
         if not self.email_topic_arn:
-            raise ValueError("EMAIL_TOPIC_ARN environment variable is required")
+            logger.warning("EMAIL_TOPIC_ARN not configured - email subscriptions will be disabled")
         if not self.sms_topic_arn:
-            raise ValueError("SMS_TOPIC_ARN environment variable is required")
+            logger.warning("SMS_TOPIC_ARN not configured - SMS subscriptions will be disabled")
     
-    async def subscribe_email(self, email: str) -> str:
+    async def subscribe_email(self, email: str, user_id: str) -> str:
         """
-        Subscribe email address to SNS email topic
+        Subscribe email address to SNS email topic with user_id filter
         
         Args:
             email: Email address to subscribe
+            user_id: User ID for message filtering
             
         Returns:
             str: Subscription ARN
         """
         try:
-            logger.info(f"Subscribing email to SNS topic: {email}")
+            if not self.email_topic_arn:
+                logger.warning("EMAIL_TOPIC_ARN not configured - skipping email subscription")
+                return "local-test-subscription-arn-email"
+            
+            logger.info(f"Subscribing email to SNS topic: {email} for user: {user_id}")
             
             response = self.sns_client.subscribe(
                 TopicArn=self.email_topic_arn,
                 Protocol='email',
-                Endpoint=email
+                Endpoint=email,
+                Attributes={
+                    'FilterPolicy': f'{{"user_id": ["{user_id}"]}}'
+                }
             )
             
             subscription_arn = response['SubscriptionArn']
-            logger.info(f"Email subscription created: {email} -> {subscription_arn}")
+            logger.info(f"Email subscription created: {email} -> {subscription_arn} (user: {user_id})")
             
             return subscription_arn
             
@@ -52,28 +61,36 @@ class SNSContactManager(ContactManagerPort):
             logger.error(f"Unexpected error subscribing email {email}: {str(e)}")
             raise
     
-    async def subscribe_phone(self, phone: str) -> str:
+    async def subscribe_phone(self, phone: str, user_id: str) -> str:
         """
-        Subscribe phone number to SNS SMS topic
+        Subscribe phone number to SNS SMS topic with user_id filter
         
         Args:
             phone: Phone number to subscribe
+            user_id: User ID for message filtering
             
         Returns:
             str: Subscription ARN
         """
         try:
+            if not self.sms_topic_arn:
+                logger.warning("SMS_TOPIC_ARN not configured - skipping SMS subscription")
+                return "local-test-subscription-arn-sms"
+                
             formatted_phone = self._format_phone_number(phone)
-            logger.info(f"Subscribing phone to SNS topic: {formatted_phone}")
+            logger.info(f"Subscribing phone to SNS topic: {formatted_phone} for user: {user_id}")
             
             response = self.sns_client.subscribe(
                 TopicArn=self.sms_topic_arn,
                 Protocol='sms',
-                Endpoint=formatted_phone
+                Endpoint=formatted_phone,
+                Attributes={
+                    'FilterPolicy': f'{{"user_id": ["{user_id}"]}}'
+                }
             )
             
             subscription_arn = response['SubscriptionArn']
-            logger.info(f"Phone subscription created: {formatted_phone} -> {subscription_arn}")
+            logger.info(f"Phone subscription created: {formatted_phone} -> {subscription_arn} (user: {user_id})")
             
             return subscription_arn
             

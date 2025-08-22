@@ -54,9 +54,9 @@ class UserProfileNotificationUseCase:
             if user_data.get("email"):
                 try:
                     email_subscription_arn = await self.contact_manager.subscribe_email(
-                        user_data["email"]
+                        user_data["email"], record.user_id
                     )
-                    logger.info(f"Email subscribed: {user_data['email']} -> {email_subscription_arn}")
+                    logger.info(f"Email subscribed: {user_data['email']} -> {email_subscription_arn} (user: {record.user_id})")
                 except Exception as e:
                     logger.error(f"Failed to subscribe email {user_data['email']}: {str(e)}")
                     success = False
@@ -65,9 +65,9 @@ class UserProfileNotificationUseCase:
             if user_data.get("phone"):
                 try:
                     phone_subscription_arn = await self.contact_manager.subscribe_phone(
-                        user_data["phone"]
+                        user_data["phone"], record.user_id
                     )
-                    logger.info(f"Phone subscribed: {user_data['phone']} -> {phone_subscription_arn}")
+                    logger.info(f"Phone subscribed: {user_data['phone']} -> {phone_subscription_arn} (user: {record.user_id})")
                 except Exception as e:
                     logger.error(f"Failed to subscribe phone {user_data['phone']}: {str(e)}")
                     success = False
@@ -127,6 +127,7 @@ class UserProfileNotificationUseCase:
             message=message,
             user_id=record.user_id,
             metadata={
+                "user_id": record.user_id,  # Para filtrado SNS
                 "event_name": record.event_name.value,
                 "user_data": user_data
             }

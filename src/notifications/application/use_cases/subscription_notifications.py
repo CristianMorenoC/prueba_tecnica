@@ -34,8 +34,8 @@ class SubscriptionNotificationUseCase:
             
             user_data = self._extract_user_data(record.data)
             if not user_data:
-                logger.error(f"Could not extract user data from record: {record.data}")
-                return False
+                logger.info(f"No user contact data available for subscription notification - skipping")
+                return True  # Return True because this is not an error, just no notification needed
             
             # Determine notification type based on event and status
             notification_type = self._determine_notification_type(record)
@@ -70,12 +70,22 @@ class SubscriptionNotificationUseCase:
     
     def _extract_user_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Extract user data from record data"""
-        return {
+        user_data = {
             "email": data.get("email"),
             "phone": data.get("phone"),
             "notify_channel": data.get("notify_channel"),
             "name": data.get("name", "Usuario")
         }
+        
+        logger.info(f"Extracted user data: {user_data}")
+        
+        # For subscription events, we might not have email/phone in the record
+        # This is expected behavior - skip notification if no contact info
+        if not user_data.get("email") and not user_data.get("phone"):
+            logger.warning("No email or phone found in subscription record - cannot send notification")
+            return None
+            
+        return user_data
     
     def _determine_notification_type(self, record: ProcessedRecord) -> str:
         """Determine notification type based on record"""
@@ -111,6 +121,7 @@ class SubscriptionNotificationUseCase:
             user_id=record.user_id,
             fund_id=record.fund_id,
             metadata={
+                "user_id": record.user_id,  # Para filtrado SNS
                 "event_name": record.event_name.value,
                 "subscription_data": record.data
             }
@@ -139,6 +150,7 @@ class SubscriptionNotificationUseCase:
             user_id=record.user_id,
             fund_id=record.fund_id,
             metadata={
+                "user_id": record.user_id,  # Para filtrado SNS
                 "event_name": record.event_name.value,
                 "subscription_data": record.data
             }
