@@ -10,7 +10,7 @@ Globals:
     Timeout: 30
 
 Resources:
-  HelloWorldFunction:
+  API:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: src/app/
@@ -45,7 +45,57 @@ Resources:
           KeyType: HASH
         - AttributeName: SK
           KeyType: RANGE
-
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+  Notifications:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: Notifications
+      CodeUri: src/notifications
+      Handler: main.lambda_handler
+      Runtime: python3.13
+      MemorySize: 512
+      Timeout: 30
+      Tracing: Active
+      Environment:
+        Variables:
+          EMAIL_TOPIC_ARN: !Ref EmailNotificationTopic
+          SMS_TOPIC_ARN: !Ref SmsNotificationTopic
+      Events:
+        AppChallenge:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt AppChallenge.StreamArn
+            StartingPosition: TRIM_HORIZON
+            BatchSize: 1
+            MaximumBatchingWindowInSeconds: 0
+            ParallelizationFactor: 1
+      Policies:
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt EmailNotificationTopic.TopicName
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt SmsNotificationTopic.TopicName
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - sns:CreatePlatformEndpoint
+                - sns:Subscribe
+                - sns:Unsubscribe
+              Resource: '*'
+  EmailNotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: amaris-email-notifications
+      DisplayName: "Amaris Email Notifications"
+  
+  SmsNotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: amaris-sms-notifications  
+      DisplayName: "Amaris SMS Notifications"
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
@@ -53,9 +103,9 @@ Outputs:
   HelloWorldApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value: !Sub https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/
-  HelloWorldFunction:
+  API:
     Description: Hello World Lambda Function ARN
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
+    Value: !GetAtt API.Arn
+  APIIamRole:
     Description: Implicit IAM Role created for Hello World function
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+    Value: !GetAtt APIRole.Arn
