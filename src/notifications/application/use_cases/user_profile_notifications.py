@@ -59,7 +59,7 @@ class UserProfileNotificationUseCase:
                     logger.info(f"Email subscribed: {user_data['email']} -> {email_subscription_arn} (user: {record.user_id})")
                 except Exception as e:
                     logger.error(f"Failed to subscribe email {user_data['email']}: {str(e)}")
-                    success = False
+                    raise e
             
             # Subscribe phone if provided
             if user_data.get("phone"):
@@ -70,7 +70,7 @@ class UserProfileNotificationUseCase:
                     logger.info(f"Phone subscribed: {user_data['phone']} -> {phone_subscription_arn} (user: {record.user_id})")
                 except Exception as e:
                     logger.error(f"Failed to subscribe phone {user_data['phone']}: {str(e)}")
-                    success = False
+                    raise e
             
             # Send welcome notification if email is available
             if user_data.get("email"):
@@ -80,7 +80,7 @@ class UserProfileNotificationUseCase:
                     logger.info(f"Welcome email sent to: {user_data['email']}")
                 except Exception as e:
                     logger.error(f"Failed to send welcome email: {str(e)}")
-                    success = False
+                    raise e
             
             return success
             
@@ -94,7 +94,7 @@ class UserProfileNotificationUseCase:
             "email": data.get("email"),
             "phone": data.get("phone"),
             "name": data.get("name", "Usuario"),
-            "notify_channel": data.get("notify_channel", "email")
+            "notification_channel": data.get("notification_channel", "email")
         }
     
     def _create_welcome_notification(
@@ -112,7 +112,7 @@ class UserProfileNotificationUseCase:
         Datos de tu perfil:
         - Email: {user_data.get('email', 'No proporcionado')}
         - Teléfono: {user_data.get('phone', 'No proporcionado')}
-        - Canal de notificaciones: {user_data.get('notify_channel', 'email')}
+        - Canal de notificaciones: {user_data.get('notification_channel', 'email')}
         
         ¡Gracias por unirte a nosotros!
         

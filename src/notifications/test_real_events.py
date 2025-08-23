@@ -17,17 +17,17 @@ user_profile_event = {
                 'ApproximateCreationDateTime': 1755887881.0,
                 'Keys': {
                     'SK': {'S': 'PROFILE'},
-                    'PK': {'S': 'USER#0003'}
+                    'PK': {'S': 'USER#005'}
                 },
                 'NewImage': {
-                    'notify_channel': {'S': 'email'},
+                    'notification_channel': {'S': 'email'},
                     'balance': {'N': '600000'},
                     'phone': {'S': '+573007586230'},
                     'user_id': {'S': 'u003'},
                     'SK': {'S': 'PROFILE'},
-                    'name': {'S': 'Jose Luis Salamanca'},
+                    'name': {'S': 'Cristian Luis Salamanca'},
                     'PK': {'S': 'USER#0003'},
-                    'email': {'S': 'jose.salamancacoy@gmail.com'}
+                    'email': {'S': 'cristianfmoreno95@gmail.com'}
                 },
                 'SequenceNumber': '3914200004048040612420311',
                 'SizeBytes': 152,
@@ -51,18 +51,18 @@ subscription_event = {
                 'ApproximateCreationDateTime': 1755888148.0,
                 'Keys': {
                     'SK': {'S': 'SUB#f001'},
-                    'PK': {'S': 'USER#u001'}
+                    'PK': {'S': 'USER#u007'}
                 },
                 'NewImage': {
-                    'cancelled_at': {'NULL': True},
-                    'amount': {'N': '100000'},
-                    'notify_channel': {'S': 'email'},
-                    'user_id': {'S': 'u001'},
-                    'SK': {'S': 'SUB#f001'},
-                    'created_at': {'S': '2025-08-20T10:00:00Z'},
-                    'fund_id': {'S': 'f001'},
-                    'PK': {'S': 'USER#u001'},
-                    'status': {'S': 'active'}
+                "PK": {"S": "USER#u007"},
+                "SK": {"S": "SUB#f001"},
+                "user_id": {"S": "u007"},
+                "fund_id": {"S": "f001"},
+                "amount": {"N": "100000"},
+                "status": {"S": "active"},
+                "created_at": {"S": "2025-08-20T10:00:00Z"},
+                "cancelled_at": {"NULL": True},
+                "notification_channel": {"S": "email"}
                 },
                 'SequenceNumber': '3931300000459376624562377',
                 'SizeBytes': 146,
@@ -74,7 +74,7 @@ subscription_event = {
 }
 
 if __name__ == "__main__":
-    print("Testing User Profile Event:")
+    '''print("Testing User Profile Event:")
     try:
         result = lambda_handler(user_profile_event, None)
         print(f"Result: {result}")
@@ -82,10 +82,12 @@ if __name__ == "__main__":
         print(f"Error: {e}")
     
     print("\n" + "="*50 + "\n")
-    
+    '''
+ 
     print("Testing Subscription Event:")
     try:
         result = lambda_handler(subscription_event, None)
         print(f"Result: {result}")
     except Exception as e:
         print(f"Error: {e}")
+    

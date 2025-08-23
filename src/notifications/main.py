@@ -108,6 +108,7 @@ class NotificationService:
                     "status": "error",
                     "error": str(e)
                 })
+                raise e
         
         return results
     

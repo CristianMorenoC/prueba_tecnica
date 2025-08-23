@@ -31,7 +31,7 @@ def user_profile_insert_record():
             "email": "newuser@example.com",
             "phone": "+573001234567",
             "name": "New User",
-            "notify_channel": "email",
+            "notification_channel": "email",
             "balance": 0
         }
     )
@@ -96,7 +96,7 @@ class TestUserProfileNotificationUseCase:
                 "user_id": "123",
                 "email": "emailonly@example.com",
                 "name": "Email Only User",
-                "notify_channel": "email"
+                "notification_channel": "email"
             }
         )
         
@@ -126,7 +126,7 @@ class TestUserProfileNotificationUseCase:
                 "user_id": "123",
                 "phone": "+573009876543",
                 "name": "Phone Only User",
-                "notify_channel": "sms"
+                "notification_channel": "sms"
             }
         )
         

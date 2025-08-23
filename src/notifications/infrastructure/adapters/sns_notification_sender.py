@@ -65,14 +65,6 @@ class SNSNotificationSender(NotificationSenderPort):
                     'user_id': {
                         'DataType': 'String',
                         'StringValue': user_id
-                    },
-                    'notification_type': {
-                        'DataType': 'String',
-                        'StringValue': message.type.value
-                    },
-                    'recipient': {
-                        'DataType': 'String',
-                        'StringValue': message.recipient
                     }
                 }
             )

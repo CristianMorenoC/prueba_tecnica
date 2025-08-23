@@ -18,7 +18,7 @@ class DynamoDBImage(BaseModel):
     email: Optional[Dict[str, Any]] = None
     phone: Optional[Dict[str, Any]] = None
     balance: Optional[Dict[str, Any]] = None
-    notify_channel: Optional[Dict[str, Any]] = None
+    notification_channel: Optional[Dict[str, Any]] = None
     fund_id: Optional[Dict[str, Any]] = None
     amount: Optional[Dict[str, Any]] = None
     status: Optional[Dict[str, Any]] = None

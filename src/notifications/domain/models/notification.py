@@ -18,7 +18,7 @@ class NotificationMessage(BaseModel):
     """Base notification message"""
     type: NotificationType
     channel: NotificationChannel
-    recipient: str
+    recipient: str|None = None
     subject: str
     message: str
     metadata: Dict[str, Any] = {}

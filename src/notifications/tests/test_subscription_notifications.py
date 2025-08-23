@@ -27,7 +27,7 @@ def subscription_insert_record():
             "email": "test@example.com",
             "phone": "+573001234567",
             "name": "Test User",
-            "notify_channel": "email",
+            "notification_channel": "email",
             "amount": 10000,
             "status": "active"
         }
@@ -46,7 +46,7 @@ def subscription_modify_cancelled_record():
             "email": "test@example.com",
             "phone": "+573001234567",
             "name": "Test User",
-            "notify_channel": "sms",
+            "notification_channel": "sms",
             "amount": 10000,
             "status": "cancelled"
         }
@@ -170,7 +170,7 @@ class TestSubscriptionNotificationUseCase:
                 "fund_id": "fund456",
                 "email": "test@example.com",
                 "name": "Test User",
-                "notify_channel": "email",
+                "notification_channel": "email",
                 "status": "active"  # Still active, not cancelled
             }
         )
