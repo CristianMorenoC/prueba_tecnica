@@ -23,8 +23,9 @@ class SubscriptionUseCase:
     def subscribe(
             self,
             fund_id: str,
-            user: User,
-            amount: int
+            user_id: str,
+            amount: int,
+            notification_channel: str
             ) -> Subscription:
         """Subscribe a user to a fund."""
         fund = self._funds_port.get_by_id(fund_id)
@@ -35,6 +36,10 @@ class SubscriptionUseCase:
         if amount < fund.min_amount:
             raise ValueError(f"No tiene saldo disponible para vincularse al fondo ${fund.name}")
 
+        # get user
+        user = self._user_port.get_by_id(user_id)
+        if not user:
+            raise ValueError("User not found")
         # calculate new balance
         new_balance = user.balance - amount
 
@@ -51,6 +56,7 @@ class SubscriptionUseCase:
             fund_id=fund_id,
             amount=amount,
             status=Status.ACTIVE,
+            notificationChannel=notification_channel
         )
         subscription = self._subscription_port.save(subscription)
 
@@ -71,13 +77,19 @@ class SubscriptionUseCase:
     def cancel_subscription(
             self,
             fund_id: str,
-            user: User,
+            user_id: str,
             ) -> Subscription:
         """Subscribe a user to a fund."""
         fund = self._funds_port.get_by_id(fund_id)
         if not fund:
             raise ValueError("Fund not found")
-        
+
+        # get user
+        user = self._user_port.get_by_id(user_id)
+
+        if not user:
+            raise ValueError("User not found")
+
         # get active user's active subscription
         subs = self._subscription_port.get(user.user_id, fund_id)
 
@@ -86,7 +98,7 @@ class SubscriptionUseCase:
 
         # calculate new balance
         new_balance = user.balance + subs.amount
-        
+
         # update user balance
         self._user_port.update(user.user_id, new_balance=new_balance)
 

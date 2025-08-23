@@ -1,11 +1,11 @@
 import pytest
 from unittest.mock import Mock
 
-from ..use_cases.subscriptions import SubscriptionUseCase
-from ..domain.models.user import User, NotifyChannel
-from ..domain.models.fund import Fund
-from ..domain.models.subscription import Subscription, Status
-from ..domain.models.transaction import TransactionType
+from use_cases.subscriptions import SubscriptionUseCase
+from domain.models.user import User, NotifyChannel
+from domain.models.fund import Fund
+from domain.models.subscription import Subscription, Status
+from domain.models.transaction import TransactionType
 
 
 class TestSubscriptionUseCaseBusinessRules:
@@ -50,6 +50,7 @@ class TestSubscriptionUseCaseBusinessRules:
         )
 
         self.funds_port.get_by_id.return_value = fund
+        self.user_port.get_by_id.return_value = user
 
         # Act & Assert
         with pytest.raises(
@@ -59,8 +60,9 @@ class TestSubscriptionUseCaseBusinessRules:
             # Intentar suscribirse con monto menor al mínimo
             self.use_case.subscribe(
                 fund_id="f001",
-                user=user,
-                amount=50000
+                user_id=user.user_id,
+                amount=50000,
+                notification_channel="email"
             )
 
         # Verificar que no se realizaron operaciones
@@ -90,13 +92,15 @@ class TestSubscriptionUseCaseBusinessRules:
         )
 
         self.funds_port.get_by_id.return_value = fund
+        self.user_port.get_by_id.return_value = user
 
         # Act & Assert
         with pytest.raises(ValueError) as exc_info:
             self.use_case.subscribe(
                 fund_id="f001",
-                user=user,
-                amount=100000
+                user_id=user.user_id,
+                amount=100000,
+                notification_channel="email"
             )
 
         # Verificar mensaje específico con nombre del fondo
@@ -135,14 +139,17 @@ class TestSubscriptionUseCaseBusinessRules:
         )
 
         self.funds_port.get_by_id.return_value = fund
+        self.user_port.get_by_id.return_value = user
         self.subscription_port.save.return_value = expected_subscription
+        self.user_port.get_by_id.return_value = user
         self.user_port.update.return_value = user
 
         # Act
         result = self.use_case.subscribe(
             fund_id="f001",
-            user=user,
-            amount=100000
+            user_id=user.user_id,
+            amount=100000,
+            notification_channel="email"
         )
 
         # Assert
@@ -210,13 +217,15 @@ class TestSubscriptionUseCaseBusinessRules:
         )
 
         self.funds_port.get_by_id.return_value = fund
+        self.user_port.get_by_id.return_value = user
+        self.user_port.get_by_id.return_value = user
         self.subscription_port.get.return_value = active_subscription
         self.subscription_port.update.return_value = cancelled_subscription
 
         # Act
         result = self.use_case.cancel_subscription(
             fund_id="f001",
-            user=user
+            user_id=user.user_id
         )
 
         # Assert
@@ -275,13 +284,14 @@ class TestSubscriptionUseCaseBusinessRules:
         )
 
         self.funds_port.get_by_id.return_value = fund
+        self.user_port.get_by_id.return_value = user
         self.subscription_port.get.return_value = inactive_subscription
 
         # Act & Assert
         with pytest.raises(ValueError, match="Active subscription not found"):
             self.use_case.cancel_subscription(
                 fund_id="f001",
-                user=user
+                user_id=user.user_id
             )
 
         # Verificar que no se realizaron cambios
@@ -311,13 +321,14 @@ class TestSubscriptionUseCaseBusinessRules:
         )
 
         self.funds_port.get_by_id.return_value = fund
+        self.user_port.get_by_id.return_value = user
         self.subscription_port.get.return_value = None
 
         # Act & Assert
         with pytest.raises(ValueError, match="Active subscription not found"):
             self.use_case.cancel_subscription(
                 fund_id="f001",
-                user=user
+                user_id=user.user_id
             )
 
     def test_fund_not_found_raises_error(self):
@@ -341,6 +352,7 @@ class TestSubscriptionUseCaseBusinessRules:
         with pytest.raises(ValueError, match="Fund not found"):
             self.use_case.subscribe(
                 fund_id="f999",  # ID inexistente
-                user=user,
-                amount=100000
+                user_id=user.user_id,
+                amount=100000,
+                notification_channel="email"
             )

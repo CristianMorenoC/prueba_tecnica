@@ -4,6 +4,11 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
+class NotificationChannel(str, Enum):
+    EMAIL = "email"
+    SMS = "sms"
+
+
 class Status(str, Enum):
     ACTIVE = "active"
     CANCELLED = "cancelled"
@@ -16,3 +21,4 @@ class Subscription(BaseModel):
     status: Status
     created_at: Optional[str] = datetime.now().isoformat()
     cancelled_at: Optional[str] = None
+    notificationChannel: Optional[NotificationChannel] = NotificationChannel.EMAIL

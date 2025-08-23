@@ -2,7 +2,6 @@ from fastapi import Depends
 from ..run import app
 from ..use_cases.subscriptions import SubscriptionUseCase
 from ..use_cases.transactions import TransactionUseCase
-from ..domain.models.user import User, NotifyChannel
 from ..domain.models.requests import SubscribeRequest
 from ..infrastructure.dependencies import (
     get_subscription_use_case,
@@ -11,7 +10,7 @@ from ..infrastructure.dependencies import (
 
 
 @app.get("/user/{user_id}/transactions")
-async def get_transactions_by_user(
+async def get_all_by_user(
     user_id: str,
     use_case: TransactionUseCase = Depends(get_transaction_use_case)
 ):
@@ -22,23 +21,18 @@ async def get_transactions_by_user(
 
 
 @app.post("/user/{user_id}/subscribe/{fund_id}")
-async def subscribe(
+async def suscribe_user(
+    user_id: str,
     fund_id: str,
     request: SubscribeRequest,
     use_case: SubscriptionUseCase = Depends(get_subscription_use_case)
 ):
     """Subscribe a user to a fund."""
     return use_case.subscribe(
-        user=User(
-            user_id="u005",
-            balance=300000,
-            email="eve@example.com",
-            name="Eve",
-            notify_channel=NotifyChannel.EMAIL,
-            phone="+1-202-555-0105"
-        ),
+        user_id=user_id,
         fund_id=fund_id,
-        amount=request.amount
+        amount=request.amount,
+        notification_channel=request.notification_channel,
     )
 
 
@@ -51,14 +45,7 @@ async def cancel_subscribtion(
     """Subscribe a user to a fund."""
     return use_case.cancel_subscription(
         fund_id=fund_id,
-        user=User(
-            user_id=user_id,
-            balance=300000,
-            email="eve@example.com",
-            name="Eve",
-            notify_channel=NotifyChannel.EMAIL,
-            phone="+1-202-555-0105"
-        ),
+        user_id=user_id,
     )
 
 

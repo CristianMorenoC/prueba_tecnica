@@ -24,7 +24,8 @@ class SubscriptionAdapter(SubscriptionPort):
         self,
         user_id: str,
         fund_id: str,
-        amount: int
+        amount: int,
+        notification_channel: str
     ) -> Subscription:
         """Subscribe a user to a fund."""
         try:
@@ -33,7 +34,8 @@ class SubscriptionAdapter(SubscriptionPort):
                 fund_id=fund_id,
                 amount=amount,
                 status=Status.ACTIVE,
-                created_at=datetime.now().isoformat()
+                created_at=datetime.now().isoformat(),
+                notificationChannel=notification_channel
             )
 
             return self.save(subscription)
