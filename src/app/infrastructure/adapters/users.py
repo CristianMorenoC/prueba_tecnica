@@ -1,7 +1,7 @@
 import boto3
 from botocore.exceptions import ClientError
 from application.ports.users import UserPort
-from domain.models.user import User, NotifyChannel
+from domain.models.user import User, NotifyChannel, UserCreateRequest
 from typing import Any
 from config import APPCHALLENGE_TABLE_NAME, AWS_REGION
 
@@ -90,3 +90,37 @@ class UserAdapter(UserPort):
             raise Exception(
                 f"Error updating user: {e.response['Error']['Message']}"
             )
+
+    def save(self, user: UserCreateRequest) -> User:
+        """Save a user."""
+        try:
+            self.users_table.put_item(
+                Item={
+                    'PK': f'USER#{user.user_id}',
+                    'SK': 'PROFILE',
+                    'user_id': user.user_id,
+                    'name': user.name,
+                    'email': user.email,
+                    'phone': user.phone,
+                    'balance': user.balance,
+                    'notify_channel': user.notify_channel.value
+                },
+                ConditionExpression='attribute_not_exists(PK) AND attribute_not_exists(SK)'
+            )
+            # Return a complete User object
+            return User(
+                user_id=user.user_id,
+                name=user.name,
+                email=user.email,
+                phone=user.phone,
+                balance=user.balance,
+                notify_channel=user.notify_channel
+            )
+
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+                raise ValueError(f"User with ID {user.user_id} already exists")
+            else:
+                raise Exception(
+                    f"Error saving user: {e.response['Error']['Message']}"
+                )

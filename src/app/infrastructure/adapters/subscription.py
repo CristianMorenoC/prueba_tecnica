@@ -25,7 +25,9 @@ class SubscriptionAdapter(SubscriptionPort):
         user_id: str,
         fund_id: str,
         amount: int,
-        notification_channel: str
+        notification_channel: str,
+        user_email: str = None,
+        user_phone: str = None
     ) -> Subscription:
         """Subscribe a user to a fund."""
         try:
@@ -38,7 +40,7 @@ class SubscriptionAdapter(SubscriptionPort):
                 notificationChannel=notification_channel
             )
 
-            return self.save(subscription)
+            return self.save(subscription, user_email=user_email, user_phone=user_phone)
 
         except ClientError as e:
             raise Exception(
@@ -206,7 +208,7 @@ class SubscriptionAdapter(SubscriptionPort):
                 f"Error listing subscriptions by user: {e.response['Error']['Message']}"
             )
 
-    def save(self, subscription: Subscription) -> Subscription:
+    def save(self, subscription: Subscription, user_email: str = None, user_phone: str = None) -> Subscription:
         """Save a subscription."""
         try:
             item = {
@@ -216,8 +218,19 @@ class SubscriptionAdapter(SubscriptionPort):
                 'fund_id': subscription.fund_id,
                 'amount': subscription.amount,
                 'status': subscription.status.value,
-                'created_at': subscription.created_at
+                'created_at': subscription.created_at,
+                'notificationChannel': subscription.notificationChannel
             }
+
+            # Add user contact information for notifications
+            if user_email:
+                item['email'] = user_email
+                print(f"[SUBSCRIPTION DEBUG] Adding email: {user_email}")
+            if user_phone:
+                item['phone'] = user_phone  
+                print(f"[SUBSCRIPTION DEBUG] Adding phone: {user_phone}")
+            
+            print(f"[SUBSCRIPTION DEBUG] Final item being saved: {item}")
 
             if subscription.cancelled_at:
                 item['cancelled_at'] = subscription.cancelled_at

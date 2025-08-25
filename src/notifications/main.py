@@ -163,7 +163,7 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
     """
     # Basic event logging
     print(f"Lambda triggered with event: {json.dumps(event, default=str)}")
-    logger.info("=== LAMBDA HANDLER STARTED ===")
+    logger.info("=== LAMBDA HANDLER STARTED v3.0 - WITH SUBSCRIPTION CONTACT INFO FIX ===")
     
     try:
         # Extract DynamoDB records from event

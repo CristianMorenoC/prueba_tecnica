@@ -20,7 +20,7 @@ class SubscriptionPort(Protocol):
             ) -> Iterable[Subscription]:
         """List subscriptions by user ID, filtered by status."""
 
-    def save(self, subscription: Subscription) -> Subscription:
+    def save(self, subscription: Subscription, user_email: str = None, user_phone: str = None) -> Subscription:
         """Save a subscription."""
 
     def cancel(self, user_id: str, fund_id: str) -> Subscription:

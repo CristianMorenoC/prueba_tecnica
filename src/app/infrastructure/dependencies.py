@@ -18,6 +18,8 @@ from infrastructure.adapters.users import UserAdapter
 # Use Cases
 from use_cases.subscriptions import SubscriptionUseCase
 from use_cases.transactions import TransactionUseCase
+from use_cases.user import UserUseCase
+from use_cases.funds import FundUseCase
 
 
 @lru_cache()
@@ -81,3 +83,17 @@ def get_transaction_use_case(
 ) -> TransactionUseCase:
     """Factory for Transaction use case with all dependencies injected."""
     return TransactionUseCase(transaction_port=transaction_port)
+
+
+def get_user_use_case(
+    user_port: UserPort = Depends(get_user_repository)
+) -> UserUseCase:
+    """Factory for User use case with all dependencies injected."""
+    return UserUseCase(user_repository=user_port)
+
+
+def get_fund_use_case(
+    fund_port: FundPort = Depends(get_fund_repository)
+) -> FundUseCase:
+    """Factory for Fund use case with all dependencies injected."""
+    return FundUseCase(fund_repository=fund_port)

@@ -15,3 +15,12 @@ class User(BaseModel):
     phone: Optional[str]
     balance: int
     notify_channel: NotifyChannel
+
+
+class UserCreateRequest(BaseModel):
+    name: str
+    phone: str
+    balance: int
+    email: str
+    notify_channel: NotifyChannel
+    user_id: Optional[str] = None

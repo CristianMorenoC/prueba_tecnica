@@ -94,7 +94,7 @@ class UserProfileNotificationUseCase:
             "email": data.get("email"),
             "phone": data.get("phone"),
             "name": data.get("name", "Usuario"),
-            "notification_channel": data.get("notification_channel", "email")
+            "notificationChannel": data.get("notificationChannel", "email")
         }
     
     def _create_welcome_notification(
@@ -112,7 +112,7 @@ class UserProfileNotificationUseCase:
         Datos de tu perfil:
         - Email: {user_data.get('email', 'No proporcionado')}
         - Teléfono: {user_data.get('phone', 'No proporcionado')}
-        - Canal de notificaciones: {user_data.get('notification_channel', 'email')}
+        - Canal de notificaciones: {user_data.get('notificationChannel')}
         
         ¡Gracias por unirte a nosotros!
         

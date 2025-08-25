@@ -2,7 +2,7 @@
 
 ## 1. Arquitectura de Seguridad General
 
-![Diagrama arquitectura](image-2.png)
+![Definicion de arquitectura](image.png)
 
 ### Componentes AWS
 La arquitectura de seguridad se basa en los siguientes servicios de AWS:
@@ -73,28 +73,10 @@ Email/SMS al usuario (suscripciones)
 - **Tracking**: DynamoDB mantiene registro de sesiones activas
 - **Invalidación**: logout explícito invalida tokens inmediatamente
 
-### Validación de Tokens
-```python
-# Middleware FastAPI para validación JWT
-@app.middleware("http")
-async def auth_middleware(request: Request, call_next):
-    # Extrae token del header Authorization
-    # Valida firma con claves públicas de Cognito
-    # Verifica expiración y claims
-    # Inyecta user_context en request
-```
-
 ### Control de Acceso por Endpoint
 - **Decoradores de seguridad** para cada endpoint
 - **Validación de roles** antes de ejecutar lógica de negocio
 - **Logging de accesos** para auditoría
-
-```python
-@require_role("ADMIN", "FUND_MANAGER")
-@require_permission("fund:create")
-async def create_fund():
-    # Lógica del endpoint
-```
 
 ### Reglas de Acceso a Datos
 - **Transacciones**: usuarios solo pueden ver sus propias transacciones
@@ -164,7 +146,7 @@ async def create_fund():
 ### Configuración SNS
 - **Topic**: `subscription-notifications`
 - **Eventos**: nueva suscripción a fondo
-- **Canales**: Email y SMS según `notify_channel` del usuario
+- **Canales**: Email y SMS según `notificationchannel` del usuario
 - **Formato**: mensajes personalizados con detalles de la suscripción
 
 ### Contenido de Notificaciones

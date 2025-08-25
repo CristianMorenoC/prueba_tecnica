@@ -47,14 +47,22 @@ class SubscriptionNotificationUseCase:
             # For subscription events, we just log the event since we don't have user contact info
             # The actual notifications are sent when user profiles are created
             logger.info(f"Subscription event processed: {notification_type} for user {record.user_id}, fund {record.fund_id}")
-            logger.info(f"Preferred notification channel: {user_data.get('notification_channel', 'not specified')}")
+            logger.info(f"Preferred notification channel: {user_data.get('notificationChannel', 'not specified')}")
             
             # Return True since the subscription event was processed successfully
+            # Convert string channel to enum
+            logger.info(f"DEBUG - Raw record.data: {record.data}")
+            logger.info(f"DEBUG - user_data: {user_data}")
+            channel_str = user_data.get("notificationChannel")
+            logger.info(f"DEBUG - channel_str: {channel_str} (type: {type(channel_str)})")
+            channel_enum = channel_str if channel_str else NotificationChannel.EMAIL
+            logger.info(f"DEBUG - channel_enum: {channel_enum}")
+            
             message = NotificationMessage(
                 type=notification_type,
-                channel=user_data.get("notification_channel"),
-                subject=f"Subscription",
-                message=f"Your subscription to fund  has been .",
+                channel=channel_enum,
+                subject=f"Subscription Update for Fund {record.fund_id}",
+                message=f"Your subscription to fund  has been successful .",
                 metadata=record.data
             )
             await self.notification_sender.send_email(message)
@@ -67,7 +75,7 @@ class SubscriptionNotificationUseCase:
     def _extract_user_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Extract user data from record data"""
         user_data = {
-            "notification_channel": data.get("notification_channel")
+            "notificationChannel": data.get("notificationChannel")
         }
         
         logger.info(f"Extracted user data: {user_data}")

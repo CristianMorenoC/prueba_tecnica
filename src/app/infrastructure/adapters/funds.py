@@ -50,26 +50,40 @@ class FundAdapter(FundPort):
     ) -> Tuple[List[Fund], str | None]:
         """List all funds."""
         try:
-            scan_kwargs: Dict[str, Any] = {'Limit': limit}
+            scan_kwargs: Dict[str, Any] = {
+                'Limit': limit,
+                'FilterExpression': 'begins_with(#pk, :fund_prefix) AND #sk = :sk',
+                'ExpressionAttributeNames': {
+                    '#pk': 'PK',
+                    '#sk': 'SK'
+                },
+                'ExpressionAttributeValues': {
+                    ':fund_prefix': 'FUND#',
+                    ':sk': 'PROFILE'
+                }
+            }
 
             if last_key:
-                scan_kwargs['ExclusiveStartKey'] = {'fund_id': last_key}
+                scan_kwargs['ExclusiveStartKey'] = {
+                    'PK': f'FUND#{last_key}',
+                    'SK': 'PROFILE'
+                }
 
             response = self.funds_table.scan(**scan_kwargs)
 
             funds = []
             for item in response.get('Items', []):
                 fund = Fund(
-                    fund_id=item['fund_id'],
-                    name=item['name'],
-                    min_amount=float(item['min_amount']),
-                    category=item['category']
+                    fund_id=item.get('fund_id'),
+                    name=item.get('name'),
+                    min_amount=float(item.get('min_amount', 0)),
+                    category=item.get('category')
                 )
                 funds.append(fund)
 
             next_key = None
             if 'LastEvaluatedKey' in response:
-                next_key = response['LastEvaluatedKey']['fund_id']
+                next_key = response['LastEvaluatedKey']['PK'].replace('FUND#', '')
 
             return (funds, next_key)
 

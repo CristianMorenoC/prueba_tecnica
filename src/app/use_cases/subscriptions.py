@@ -34,7 +34,7 @@ class SubscriptionUseCase:
 
         # check if the amount is less than the minimum required
         if amount < fund.min_amount:
-            raise ValueError(f"No tiene saldo disponible para vincularse al fondo ${fund.name}")
+            raise ValueError(f"El monto mínimo para vincularse al fondo ${fund.name} es ${fund.min_amount}")
 
         # get user
         user = self._user_port.get_by_id(user_id)
@@ -58,7 +58,7 @@ class SubscriptionUseCase:
             status=Status.ACTIVE,
             notificationChannel=notification_channel
         )
-        subscription = self._subscription_port.save(subscription)
+        subscription = self._subscription_port.save(subscription, user_email=user.email, user_phone=user.phone)
 
         # create a transaction for the subscription
         transaction = Transaction(

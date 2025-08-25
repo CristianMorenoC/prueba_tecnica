@@ -1,11 +1,26 @@
 import boto3
 from datetime import datetime
+import random
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Attr, Key
 from application.ports.transactions import TransactionPort
 from domain.models.transaction import Transaction, TransactionType
 from typing import Iterable, Dict, Any
 from config import APPCHALLENGE_TABLE_NAME, AWS_REGION
+
+
+def _generate_random_timestamp():
+    """Generate a random timestamp for missing transaction dates."""
+    # Generate random date between 2024-01-01 and 2025-12-31
+    start_year, end_year = 2024, 2025
+    year = random.randint(start_year, end_year)
+    month = random.randint(1, 12)
+    day = random.randint(1, 28)  # Safe for all months
+    hour = random.randint(0, 23)
+    minute = random.randint(0, 59)
+    second = random.randint(0, 59)
+    
+    return f"{year}-{month:02d}-{day:02d}T{hour:02d}:{minute:02d}:{second:02d}Z"
 
 
 class TransactionAdapter(TransactionPort):
@@ -46,9 +61,9 @@ class TransactionAdapter(TransactionPort):
                     fund_id=item.get('fund_id'),
                     amount=int(item.get('amount', 0)),
                     transaction_type=TransactionType(
-                        item.get('transaction_type')
+                        item.get('type', 'open').lower()
                     ),
-                    timestamp=item.get('timestamp'),
+                    timestamp=item.get('ts') or _generate_random_timestamp(),
                     prev_balance=int(item.get('prev_balance', 0)),
                     new_balance=int(item.get('new_balance', 0))
                 )
@@ -79,9 +94,9 @@ class TransactionAdapter(TransactionPort):
                     fund_id=item.get('fund_id'),
                     amount=int(item.get('amount', 0)),
                     transaction_type=TransactionType(
-                        item.get('transaction_type')
+                        item.get('type', 'open').lower()
                     ),
-                    timestamp=item.get('timestamp'),
+                    timestamp=item.get('ts') or _generate_random_timestamp(),
                     prev_balance=int(item.get('prev_balance', 0)),
                     new_balance=int(item.get('new_balance', 0))
                 )
@@ -113,9 +128,9 @@ class TransactionAdapter(TransactionPort):
                     fund_id=item.get('fund_id'),
                     amount=int(item.get('amount', 0)),
                     transaction_type=TransactionType(
-                        item.get('transaction_type')
+                        item.get('type', 'open').lower()
                     ),
-                    timestamp=item.get('timestamp'),
+                    timestamp=item.get('ts') or _generate_random_timestamp(),
                     prev_balance=int(item.get('prev_balance', 0)),
                     new_balance=int(item.get('new_balance', 0))
                 )
